@@ -1,10 +1,14 @@
 package com.liwa.project.model.dto.interfaceinfo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.liwa.project.common.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
+import java.util.Date;
 
 /**
  * 查询请求
@@ -13,57 +17,51 @@ import java.io.Serializable;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class PostQueryRequest extends PageRequest implements Serializable {
-
+public class InterfaceInfoQueryRequest extends PageRequest implements Serializable {
     /**
-     * 年龄
+     * 主键
      */
-    private Integer age;
+    private Long id;
 
     /**
-     * 性别（0-男, 1-女）
+     * 名称
      */
-    private Integer gender;
+    private String name;
 
     /**
-     * 学历
+     * 描述
      */
-    private String education;
+    private String description;
 
     /**
-     * 地点
+     * 接口地址
      */
-    private String place;
+    private String url;
 
     /**
-     * 职业
+     * 请求头
      */
-    private String job;
+    private String requestHeader;
 
     /**
-     * 联系方式
+     * 响应头
      */
-    private String contact;
+    private String responseHeader;
 
     /**
-     * 感情经历
+     * 接口状态（0-关闭，1-开启）
      */
-    private String loveExp;
+    private Integer status;
 
     /**
-     * 内容（个人介绍），支持模糊查询
+     * 请求类型
      */
-    private String content;
+    private String method;
 
     /**
-     * 状态（0-待审核, 1-通过, 2-拒绝）
-     */
-    private Integer reviewStatus;
-
-    /**
-     * 创建用户 id
+     * 创建人
      */
     private Long userId;
 
-    private static final long serialVersionUID = 1L;
+
 }

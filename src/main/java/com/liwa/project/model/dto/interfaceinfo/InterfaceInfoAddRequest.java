@@ -1,5 +1,8 @@
 package com.liwa.project.model.dto.interfaceinfo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -10,52 +13,41 @@ import java.io.Serializable;
  * @TableName product
  */
 @Data
-public class PostAddRequest implements Serializable {
+public class InterfaceInfoAddRequest implements Serializable {
 
     /**
-     * 年龄
+     * 名称
      */
-    private Integer age;
+    private String name;
 
     /**
-     * 性别（0-男, 1-女）
+     * 描述
      */
-    private Integer gender;
+    private String description;
 
     /**
-     * 学历
+     * 接口地址
      */
-    private String education;
+    private String url;
 
     /**
-     * 地点
+     * 请求头
      */
-    private String place;
+    private String requestHeader;
 
     /**
-     * 职业
+     * 响应头
      */
-    private String job;
+    private String responseHeader;
 
     /**
-     * 联系方式
+     * 接口状态（0-关闭，1-开启）
      */
-    private String contact;
+    private Integer status;
 
     /**
-     * 感情经历
+     * 请求类型
      */
-    private String loveExp;
+    private String method;
 
-    /**
-     * 内容（个人介绍）
-     */
-    private String content;
-
-    /**
-     * 照片地址
-     */
-    private String photo;
-
-    private static final long serialVersionUID = 1L;
 }

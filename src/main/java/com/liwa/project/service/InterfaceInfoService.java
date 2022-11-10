@@ -1,7 +1,8 @@
-package generator.service;
+package com.liwa.project.service;
 
-import generator.domain.InterfaceInfo;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.liwa.project.model.entity.InterfaceInfo;
+import com.liwa.project.model.entity.Post;
 
 /**
 * @author asus
@@ -9,5 +10,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
 * @createDate 2022-10-30 16:43:02
 */
 public interface InterfaceInfoService extends IService<InterfaceInfo> {
+    void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add);
 
 }
