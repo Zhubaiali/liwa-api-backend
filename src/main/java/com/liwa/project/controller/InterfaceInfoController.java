@@ -2,10 +2,13 @@ package com.liwa.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.liwa.liwaapiclientsdk.client.LiwaApiClient;
 import com.liwa.project.annotation.AuthCheck;
 import com.liwa.project.common.*;
 import com.liwa.project.constant.CommonConstant;
 import com.liwa.project.exception.BusinessException;
+import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoInvokeRequest;
 import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
 import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoUpdateRequest;
 import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoAddRequest;
@@ -13,6 +16,7 @@ import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoAddRequest;
 import com.liwa.project.model.entity.InterfaceInfo;
 import com.liwa.project.model.entity.User;
 
+import com.liwa.project.model.enums.InterfaceInfoStatusEnum;
 import com.liwa.project.service.InterfaceInfoService;
 import com.liwa.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +43,8 @@ public class InterfaceInfoController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private LiwaApiClient liwaApiClient;
 
     // region 增删改查
 
@@ -104,7 +110,7 @@ public class InterfaceInfoController {
      */
     @PostMapping("/update")
     public BaseResponse<Boolean> updateInterfaceInfo(@RequestBody InterfaceInfoUpdateRequest interfaceInfoUpdateRequest,
-                                            HttpServletRequest request) {
+                                                     HttpServletRequest request) {
         if (interfaceInfoUpdateRequest == null || interfaceInfoUpdateRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -197,12 +203,83 @@ public class InterfaceInfoController {
 
     @PostMapping("/online")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request){
+    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = idRequest.getId();
 
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+
+        // 判断接口受否可以调用
+        com.liwa.liwaapiclientsdk.model.User user = new com.liwa.liwaapiclientsdk.model.User();
+        user.setUsername("test");
+        String username = liwaApiClient.getUsernameByPost(user);
+        if (StringUtils.isBlank(username)) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "接口验证失败");
+        }
+        // 仅本人管理员可修改
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceInfoStatusEnum.ONLINE.getValue());
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+        return ResultUtils.success(result);
     }
+
     @PostMapping("/offline")
     @AuthCheck(mustRole = "admin")
-    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request){
+    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request) {
 
+        if (idRequest == null || idRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = idRequest.getId();
+
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+
+        InterfaceInfo interfaceInfo = new InterfaceInfo();
+        interfaceInfo.setId(id);
+        interfaceInfo.setStatus(InterfaceInfoStatusEnum.OFFLINE.getValue());
+        boolean result = interfaceInfoService.updateById(interfaceInfo);
+        return ResultUtils.success(result);
+    }
+    @PostMapping("/invoke")
+    public BaseResponse<Object> invokeInterfaceInfo(@RequestBody InterfaceInfoInvokeRequest interfaceInfoInvokeRequest, HttpServletRequest request) {
+
+        if (interfaceInfoInvokeRequest == null || interfaceInfoInvokeRequest.getId() <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        long id = interfaceInfoInvokeRequest.getId();
+
+        String userRequestParams = interfaceInfoInvokeRequest.getUserRequestParams();
+
+        // 判断是否存在
+        InterfaceInfo oldInterfaceInfo = interfaceInfoService.getById(id);
+        if (oldInterfaceInfo == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "接口已关闭");
+        }
+
+        User loginUser = userService.getLoginUser(request);
+
+        String accessKey = loginUser.getAccessKey();
+        String secretKey = loginUser.getSecretKey();
+
+        LiwaApiClient tempClient = new LiwaApiClient(accessKey, secretKey);
+        Gson gson = new Gson();
+
+        com.liwa.liwaapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.liwa.liwaapiclientsdk.model.User.class);
+        String usernameByPost = tempClient.getUsernameByPost(user);
+        return ResultUtils.success(usernameByPost);
     }
 }
