@@ -4,6 +4,7 @@ import com.liwa.project.model.entity.User;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.util.DigestUtils;
 
 import javax.annotation.Resource;
 
@@ -51,25 +52,12 @@ class UserServiceTest {
         String userPassword = "";
         String checkPassword = "123456";
         try {
+            String SALT = "liwa";
+            userPassword="12345678";
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+
+            System.out.println(encryptPassword);
             long result = userService.userRegister(userAccount, userPassword, checkPassword);
-            Assertions.assertEquals(-1, result);
-            userAccount = "yu";
-            result = userService.userRegister(userAccount, userPassword, checkPassword);
-            Assertions.assertEquals(-1, result);
-            userAccount = "liwa";
-            userPassword = "123456";
-            result = userService.userRegister(userAccount, userPassword, checkPassword);
-            Assertions.assertEquals(-1, result);
-            userAccount = "yu pi";
-            userPassword = "12345678";
-            result = userService.userRegister(userAccount, userPassword, checkPassword);
-            Assertions.assertEquals(-1, result);
-            checkPassword = "123456789";
-            result = userService.userRegister(userAccount, userPassword, checkPassword);
-            Assertions.assertEquals(-1, result);
-            userAccount = "dogliwa";
-            checkPassword = "12345678";
-            result = userService.userRegister(userAccount, userPassword, checkPassword);
             Assertions.assertEquals(-1, result);
             userAccount = "liwa";
             result = userService.userRegister(userAccount, userPassword, checkPassword);

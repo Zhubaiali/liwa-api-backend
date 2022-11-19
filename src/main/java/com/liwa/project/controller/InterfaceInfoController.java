@@ -3,10 +3,7 @@ package com.liwa.project.controller;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.liwa.project.annotation.AuthCheck;
-import com.liwa.project.common.BaseResponse;
-import com.liwa.project.common.DeleteRequest;
-import com.liwa.project.common.ErrorCode;
-import com.liwa.project.common.ResultUtils;
+import com.liwa.project.common.*;
 import com.liwa.project.constant.CommonConstant;
 import com.liwa.project.exception.BusinessException;
 import com.liwa.project.model.dto.interfaceinfo.InterfaceInfoQueryRequest;
@@ -196,6 +193,16 @@ public class InterfaceInfoController {
         return ResultUtils.success(interfaceInfoPage);
     }
 
-    // endregion
+    // endregion 末端区域
 
+    @PostMapping("/online")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> onlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request){
+
+    }
+    @PostMapping("/offline")
+    @AuthCheck(mustRole = "admin")
+    public BaseResponse<Boolean> offlineInterfaceInfo(@RequestBody IdRequest idRequest, HttpServletRequest request){
+
+    }
 }
